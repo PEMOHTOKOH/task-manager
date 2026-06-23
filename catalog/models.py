@@ -30,15 +30,36 @@ class TaskType(models.Model):
         ordering = ('name',)
 
 
-
 class Task(models.Model):
+
+
+    class PriorityChoices(models.TextChoices):
+        URGENT = "Urgent", "Urgent"
+        HIGH = "High", "High"
+        MEDIUM = "Medium", "Medium"
+        LOW = "Low", "Low"
+
+
     name = models.CharField(max_length=100)
     description = models.TextField()
-    deadline = models.DateTimeField()
+    deadline = models.DateField()
     is_completed = models.BooleanField(default=False)
-    priority = models.IntegerField()#???
-    task_type = models.ForeignKey(TaskType, on_delete=models.CASCADE)
-    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    priority = models.CharField(
+        max_length=10,
+        choices=PriorityChoices,
+        default=PriorityChoices.MEDIUM,
+    )
+
+    task_type = models.ForeignKey(
+        TaskType,
+        on_delete=models.CASCADE,
+        related_name='tasks'
+    )
+    assignees = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='tasks'
+    )
 
     class Meta:
         ordering = ('name',)
